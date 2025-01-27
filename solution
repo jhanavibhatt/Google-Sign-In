@@ -1,0 +1,72 @@
+binding.acToNumber.addTextChangedListener(object : TextWatcher {
+    private var isEditing = false
+
+    override fun afterTextChanged(s: Editable?) {
+        if (isEditing) return
+        isEditing = true
+
+        val inputText = s.toString()
+        val formattedText = getFormattedNumber(inputText)
+
+        if (inputText != formattedText) {
+            // Temporarily remove the TextWatcher to avoid recursive calls
+            binding.acToNumber.removeTextChangedListener(this)
+            binding.acToNumber.setText(formattedText)
+            binding.acToNumber.setSelection(formattedText.length)
+            // Re-attach the TextWatcher
+            binding.acToNumber.addTextChangedListener(this)
+        }
+
+        // Ensure the dropdown is shown after formatting
+        binding.acToNumber.showDropDown()
+        isEditing = false
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        Logger.d(TAG, "beforeTextChanged ${s.toString()}")
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        Logger.d(TAG, "onTextChanged ${s.toString()}")
+        if (s.toString() != destinationNumber) {
+            chatConversationAdapter.clearChatList()
+            Logger.d(TAG, "Chat list cleared because the input is empty.")
+        }
+    }
+})
+/*********************************************************************************************************************************************************************88888/
+
+binding.acToNumber.addTextChangedListener(object : TextWatcher {
+    private var isEditing = false
+
+    override fun afterTextChanged(s: Editable?) {
+        if (isEditing) return
+
+        isEditing = true
+        val inputText = s.toString()
+        val formattedText = getFormattedNumber(inputText)
+
+        if (inputText != formattedText) {
+            // Update the text without interrupting suggestions
+            binding.acToNumber.setText(formattedText)
+            binding.acToNumber.setSelection(formattedText.length)
+
+            // Explicitly trigger filtering to refresh suggestions
+            binding.acToNumber.performFiltering(formattedText, 0)
+        }
+
+        isEditing = false
+    }
+
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        Logger.d(TAG, "beforeTextChanged ${s.toString()}")
+    }
+
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        Logger.d(TAG, "onTextChanged ${s.toString()}")
+        if (s.toString() != destinationNumber) {
+            chatConversationAdapter.clearChatList()
+            Logger.d(TAG, "Chat list cleared because the input is empty.")
+        }
+    }
+})
